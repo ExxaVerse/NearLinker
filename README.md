@@ -1,6 +1,6 @@
 ![alt text](https://drive.google.com/uc?export=view&id=1_WeCDFBH6_7LplUTGxm3PGmOvj0ssvMP)
 
-This open source project will allow you to use unreal engine to communicate with the NEAR blockchain.
+This open source project will allow you to have Unreal Engine clients communicate with the NEAR blockchain.
 
 # MVP Features:
 - Allow users to view and transfer their fungible and non-fungible assets.
