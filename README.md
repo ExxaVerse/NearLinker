@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a aria-label="License" href="https://github.com/vercel/next.js/blob/canary/license.md">
+  <a aria-label="License" href="https://github.com/ExxaVerse/NearLinker/blob/main/LICENSE">
     <img alt="" src="https://img.shields.io/npm/l/next.svg?style=for-the-badge&labelColor=000000">
   </a>
   <a aria-label="Join the community on GitHub" href="https://github.com/ExxaVerse/NearLinker/discussions">
@@ -21,5 +21,9 @@ This open source project will allow you to have Unreal Engine clients communicat
 - Data encryption methods on both UE4 and integration server sides (SSL, AES-256, RSA, ECDSA, HMAC)
 
 # MVP - Architecture Diagram:
-![alt text](https://drive.google.com/uc?export=view&id=1ntxwOa3PsoUJDgQPouTpuofDnKGIvFzV)
+<p align="center">
+  <a href="https://exxaverse.com/">
+    <img src="https://exxaverse.com/_next/image?url=%2Fimages%2FMVPArchitectureDiagram.png&w=640&q=75">
+  </a>
+</p>
 
