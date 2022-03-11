@@ -18,7 +18,7 @@ This open source project will allow you to have Unreal Engine clients communicat
 # MVP Features:
 - Allow users to view and transfer their fungible and non-fungible assets.
 - Real-time interaction with smart contracts.
-- Data encryption methods on both UE4 and integration server sides (SSL, AES-256, RSA, ECDSA, HMAC)
+- Data encryption methods on both UE4 and integration server sides
 
 # MVP - Architecture Diagram:
 <p align="center">
