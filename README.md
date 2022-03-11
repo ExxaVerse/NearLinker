@@ -1,5 +1,4 @@
 ![alt text](https://drive.google.com/uc?export=view&id=1_WeCDFBH6_7LplUTGxm3PGmOvj0ssvMP)
-# NearLinker
 This open source project will allow you to use unreal engine to communicate with the NEAR blockchain.
 
 # MVP Features:
