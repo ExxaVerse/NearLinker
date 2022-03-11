@@ -1,5 +1,9 @@
 ![alt text](https://drive.google.com/uc?export=view&id=1_WeCDFBH6_7LplUTGxm3PGmOvj0ssvMP)
 
+  [![NPM Version][npm-version-image]][npm-url]
+  [![NPM Install Size][npm-install-size-image]][npm-install-size-url]
+  [![NPM Downloads][npm-downloads-image]][npm-downloads-url]
+
 This open source project will allow you to have Unreal Engine clients communicate with the NEAR blockchain.
 
 # MVP Features:
