@@ -13,3 +13,11 @@ This open source project will allow you to have Unreal Engine clients communicat
 
 # MVP - Architecture Diagram:
 ![alt text](https://drive.google.com/uc?export=view&id=1ntxwOa3PsoUJDgQPouTpuofDnKGIvFzV)
+
+
+[npm-downloads-image]: https://badgen.net/npm/dm/express
+[npm-downloads-url]: https://npmcharts.com/compare/express?minimal=true
+[npm-install-size-image]: https://badgen.net/packagephobia/install/express
+[npm-install-size-url]: https://packagephobia.com/result?p=express
+[npm-url]: https://npmjs.org/package/express
+[npm-version-image]: https://badgen.net/npm/v/express
