@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://exxaverse.com/">
+  <a target="_blank" rel="noopener noreferrer" href="https://exxaverse.com/">
     <img src="https://exxaverse.com/_next/image?url=%2Fimages%2FNearLinker.png&w=640&q=75" height="80">
   </a>
 </p>
@@ -22,7 +22,7 @@ This open source project will allow you to have Unreal Engine clients communicat
 
 # MVP - Architecture Diagram:
 <p align="center">
-  <a href="https://exxaverse.com/">
+  <a target="_blank" rel="noopener noreferrer" href="https://exxaverse.com/">
     <img src="https://exxaverse.com/_next/image?url=%2Fimages%2FMVPArchitectureDiagram.png&w=640&q=75">
   </a>
 </p>
