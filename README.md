@@ -1,8 +1,5 @@
-<p align="center">
-  <a rel="noopener noreferrer" href="https://exxaverse.com/" target="_blank" >
-    <img src="https://exxaverse.com/_next/image?url=%2Fimages%2FNearLinker.png&w=640&q=75" height="80">
-  </a>
-</p>
+!["Near Linker Logo](docs/images/NearLinker-Logo-Light.png#gh-dark-mode-only)
+!["Near Linker Logo](docs/images/NearLinker-Logo-Dark.png#gh-light-mode-only)
 
 <p align="center">
   <a aria-label="License" href="https://github.com/ExxaVerse/NearLinker/blob/main/LICENSE">
@@ -13,17 +10,30 @@
   </a>
 </p>
 
-This open source project will allow you to have Unreal Engine clients communicate with the NEAR blockchain.
+# What is NearLinker?
 
-# MVP Features:
-- Allow users to view and transfer their fungible and non-fungible assets.
-- Real-time interaction with smart contracts.
-- Data encryption methods on both UE4 and integration server sides.
+NearLinker is an open source project that will allow developers to integrate [NEAR](https://near.org/) blockchain in games developed with Unreal Engine.
 
-# MVP - Architecture Diagram:
-<p align="center">
-  <a rel="noopener noreferrer" href="https://exxaverse.com/" target="_blank" >
-    <img src="https://exxaverse.com/_next/image?url=%2Fimages%2FMVPArchitectureDiagram.png&w=640&q=75">
-  </a>
-</p>
+# Overview
 
+The project is composed of two main components: the integration server and the Unreal Engine plugin. The integration server is created in [Node.js](https://nodejs.org/en/) and its main purpose is creating a communication channel with the NEAR blockchain. It will leverage [next-api-js](https://docs.near.org/docs/api/javascript-library) to establish communication with NEAR, while exposing REST API endpoints to be accessed from the outside. The Unreal Engine plugin will be configured by the developer to communicate directly with the NL server. It will be plugged inside Unreal Engine projects and will allow the features discussed below.
+
+Smart contracts will be created and pushed separately on the NEAR blockchain. Implementation for smart contracts is done in Rust.
+
+NearLinker will be featured in developing [Exxaverse](https://exxaverse.com/), a gladiator-themed play-to-earn game.
+
+# Features
+
+The following features will be implemented with the delivery of the project's MVP:
+
+- Allowing users to view and transfer their fungible and non-fungible assets
+- Real-time interaction with smart contracts
+- Data encryption methods on both UE4 and integration server sides
+
+More features will be disclosed closer to the full-launch.
+
+# Architecture
+
+TBD
+
+# FAQ & Contact
