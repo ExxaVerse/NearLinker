@@ -34,6 +34,14 @@ More features will be disclosed closer to the full-launch.
 
 # Architecture
 
-TBD
+![NearLinker Architecture](docs/images/NearLinker-Architecture-Dark.png#gh-light-mode-only)
+![NearLinker Architecture](docs/images/NearLinker-Architecture-Light.png#gh-dark-mode-only)
+
+Architecture breakdown:
+
+- `NEAR blockchain` - the main data storage
+- `NodeJS Integration Server` - communicates with the NEAR blockchain through specific libraries
+- `RUST Smart Contracts` - smart contracts are written in Rust and deployed directly on the blockchain
+- `UE Clients` - games developed in Unreal Engine that use the NearLinker plugin to connect to the blockchain
 
 # FAQ & Contact
