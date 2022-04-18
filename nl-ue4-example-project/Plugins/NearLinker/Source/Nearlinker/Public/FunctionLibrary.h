@@ -22,4 +22,6 @@ public:
 	static void StartIntegrationServer();
 	UFUNCTION(BlueprintCallable, Category="Nearlinker")
 	static void StopIntegrationServer();
+	UFUNCTION(BlueprintCallable, Category="Nearlinker", meta=(AutoCreateRefTerm="method,resource,data"))
+	static void SendRequestToIntegrationServer(FString const& wallet_authorization, FString const& method="GET", FString const& resource="/some_resource", FString const& data="");
 };

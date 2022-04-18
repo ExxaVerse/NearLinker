@@ -33,7 +33,7 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Integration Server")
 	bool auto_launch_local_server=true;
 	UPROPERTY(config, EditAnywhere, Category = "Integration Server")
-	FString server_url="https://localhost:8451";
+	FString server_url="https://localhost:12678";
 	UPROPERTY(config, EditAnywhere, Category = "Contracts")
 	TArray<FString> contracts_directories;
 	//UPROPERTY(config, EditAnywhere, Category = "Contracts")
