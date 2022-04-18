@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Nearlinker",
+	"Description": "Interact with the NEAR blockchain from Unreal Engine",
+	"Category": "Online Platform",
+	"CreatedBy": "Exxaverse",
+	"CreatedByURL": "https://github.com/ExxaVerse/NearLinker",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "Nearlinker",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
