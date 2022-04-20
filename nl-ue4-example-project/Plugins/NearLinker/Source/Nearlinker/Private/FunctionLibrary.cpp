@@ -6,6 +6,7 @@
 #include"Misc/MonitoredProcess.h"
 #include"Runtime/Online/HTTP/Public/Http.h"
 #include"Misc/Base64.h"
+#include"JsonObjectConverter.h"
 
 static TUniquePtr<FMonitoredProcess> IntegrationServerProcess;
 
@@ -47,8 +48,13 @@ void UNearlinkerFunctionLibrary::StopIntegrationServer(){
 	UE_LOG(LogNearlinker, Log, TEXT("Integration server stopped"));
 }
 
-void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& wallet_authorization, FString const& method, FString const& resource, FString const& data){
-	UE_LOG(LogNearlinker, Log, TEXT("Integration server request on %s"), *(GetMutableDefault<UNearlinkerSettings>()->server_url+resource));
+void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, FNearHttpRequestCompleteDelegate const& response_handler, FString const& wallet_authorization, FString const& data){
+	//Log
+	UE_LOG(LogNearlinker, Log, TEXT("Integration server request on %s with data %s"), *(GetMutableDefault<UNearlinkerSettings>()->server_url+resource), *data);
+	if(data.Len()>0){
+		UE_LOG(LogNearlinker, Log, TEXT("with data %s"), *data);
+	}
+	//Ensure HTTPS is used
 	if(!GetMutableDefault<UNearlinkerSettings>()->server_url.StartsWith("https")){
 		UE_LOG(LogNearlinker, Error, TEXT("Integration server request is unsecure, please use https"));
 #if !WITH_EDITOR
@@ -56,21 +62,63 @@ void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& w
 		return;
 #endif
 	}
+	//Make request
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 	HttpRequest->SetVerb(method);
 	HttpRequest->SetURL(GetMutableDefault<UNearlinkerSettings>()->server_url+resource);
 	HttpRequest->SetHeader(TEXT("User-Agent"), TEXT("X-UnrealEngine-Agent"));
-	HttpRequest->SetHeader(TEXT("Authorization"), FString{TEXT("Basic ")}+FBase64::Encode(wallet_authorization));
-	if(method==TEXT("POST")){
+	if(wallet_authorization.Len()>0){
+		if(method==TEXT("GET")){
+			UE_LOG(LogNearlinker, Error, TEXT("Integration server request should not include credentials when the method is GET"));
+			return;
+		}
+		HttpRequest->SetHeader(TEXT("Authorization"), FString{TEXT("Basic ")}+FBase64::Encode(wallet_authorization));
+	}
+	if(data.Len()>0){
+		if(method==TEXT("GET")){
+			UE_LOG(LogNearlinker, Error, TEXT("Integration server request should not include data when the method is GET"));
+			return;
+		}
 		HttpRequest->SetHeader(TEXT("Content-Type"), "application/json");
 		HttpRequest->SetContentAsString(data);
 	}
-	HttpRequest->OnProcessRequestComplete().BindLambda([](FHttpRequestPtr request, FHttpResponsePtr response, bool was_successful){
+	HttpRequest->OnProcessRequestComplete().BindLambda([response_handler](FHttpRequestPtr request, FHttpResponsePtr response, bool was_successful){
 		UE_LOG(LogNearlinker, Log, TEXT("Integration server request complete"));
-		if(was_successful && response.IsValid()){
-			UE_LOG(LogNearlinker, Log, TEXT("%s"), *response->GetContentAsString());
+		if(!response_handler.ExecuteIfBound(response.IsValid()?response->GetContentAsString():FString{}, was_successful)){
+			UE_LOG(LogNearlinker, Log, TEXT("No response handler"));
 		}
+		UE_LOG(LogNearlinker, Log, TEXT("%s"), *response->GetContentAsString());
 	});
 	HttpRequest->ProcessRequest();
 }
 
+/*
+void UNearlinkerFunctionLibrary::CreateWallet(FString const& wallet_name, FNearHttpRequestCompleteDelegate const& response_handler){
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("PUT", FString{"/wallets/"}+wallet_name, response_handler);
+}
+
+void UNearlinkerFunctionLibrary::DeployContract(FNearContract const& contract, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler){
+	FString data_json;
+	if(!FJsonObjectConverter::UStructToJsonObjectString<FNearContract>(contract, data_json)){
+		UE_LOG(LogNearlinker, Error, TEXT("Failed to export contract data to Json"));
+		returna
+	}
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("POST", "/contracts", response_handler, wallet_authorization, data_json);
+}
+*/
+
+void UNearlinkerFunctionLibrary::ContractCall(FString const& contract_id, FFunctionCallDescription const& function_description, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler){
+	FString data_json;
+	if(!FJsonObjectConverter::UStructToJsonObjectString<FFunctionCallDescription>(function_description, data_json)){
+		UE_LOG(LogNearlinker, Error, TEXT("Failed to export contract function call data to Json"));
+		return;
+	}
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("POST", FString{"/contracts/"}+contract_id+FString{"/transactions"}, response_handler, wallet_authorization, data_json);
+}
+void UNearlinkerFunctionLibrary::ContractView(FString const& contract_id, FFunctionCallDescription const& function_description, FNearHttpRequestCompleteDelegate const& response_handler){
+	FString function_description_string=function_description.name;
+	if(function_description.parameters.Num()>0)                  function_description_string+="?";
+	for(auto const& [key,value]:function_description.parameters) function_description_string+=key+"="+value+"&";
+	function_description_string.RemoveFromEnd("&");
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("GET", FString{"/contracts"}/contract_id/function_description_string, response_handler);
+}
