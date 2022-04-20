@@ -4,3 +4,4 @@ nl-ue4-example-project/Saved
 nl-ue4-example-project/Plugins/NearLinker/Binaries/
 nl-ue4-example-project/Plugins/NearLinker/Intermediate
 nl-ue4-example-project/Plugins/NearLinker/Saved
+nl-api-server/node_modules/*
