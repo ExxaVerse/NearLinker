@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.3",
+    "near-api-js": "^0.44.2",
     "node": "^17.7.2",
     "nodemon": "^2.0.15"
   }
