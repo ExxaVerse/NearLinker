@@ -15,6 +15,7 @@ module.exports = () => {
         helperUrl: "https://helper.mainnet.near.org",
         explorerUrl: "https://explorer.mainnet.near.org",
       };
+      break;
     case "development":
     case "testnet":
     default:
@@ -25,6 +26,7 @@ module.exports = () => {
         helperUrl: "https://helper.testnet.near.org",
         explorerUrl: "https://explorer.testnet.near.org",
       };
+      break;
   }
 
   return {

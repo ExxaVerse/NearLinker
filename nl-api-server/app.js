@@ -1,10 +1,13 @@
 const express = require("express");
 const nearAPI = require("near-api-js");
-const { connect, keyStores, KeyPair } = nearAPI;
+const { connect, keyStores, KeyPair, transactions, providers } = nearAPI;
 
 // Receive server configuration
 const config = require("./config/config")();
 const port = config.port;
+
+// Init NEAR requirements
+const provider = new providers.JsonRpcProvider(config.near_config.nodeUrl);
 
 // Initialize Express
 const app = express();
@@ -103,6 +106,56 @@ app.get("/wallets/:wallet_id/balance", async (req, res) => {
       return res.status(200).send(await account.getAccountBalance());
     })
     .catch((error) => res.status(404).send(error));
+});
+
+// VIEW - Call View contract function
+app.get("/contract/:contract_id/:function_name", async (req, res) => {
+  const keyStore = generateKeystore();
+
+  const near_config = {
+    ...config.near_config,
+    keyStore: keyStore,
+  };
+
+  const near = await connect(near_config);
+
+  const contract_id = req.params.contract_id;
+  const function_name = req.params.function_name;
+  const contract_account = await near.account(contract_id);
+
+  const result = await contract_account
+    .viewFunction(contract_id, function_name, req.query)
+    .catch((error) => {
+      console.log(error);
+      res.status(500).send("Invalid function call or parameters.");
+    });
+
+  res.send(result);
+});
+
+// CALL - Call contract function
+app.post("/contract/function_call", async (req, res) => {
+  const contract_id = req.body.contract_id;
+  const function_name = req.params.function_name;
+  const keyStore = generateKeystore(req.body.private_key, req.body.account_id);
+
+  const near_config = {
+    ...config.near_config,
+    keyStore: keyStore,
+  };
+
+  const near = await connect(near_config);
+
+  const contract_account = await near.account(contract_id);
+
+  const result = await contract_account
+    .viewFunction(contract_id, function_name, req.query)
+    .catch((error) => {
+      console.log(error);
+      res.status(500).send("Invalid function call or parameters.");
+    });
+
+  res.send(result);
 });
 
 // Start server
