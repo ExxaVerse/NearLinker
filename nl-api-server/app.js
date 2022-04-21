@@ -1,6 +1,6 @@
 const express = require("express");
 const nearAPI = require("near-api-js");
-const { connect, keyStores, KeyPair, transactions, providers } = nearAPI;
+const { connect, keyStores, KeyPair, transactions, providers, utils } = nearAPI;
 
 // Receive server configuration
 const config = require("./config/config")();
@@ -12,23 +12,34 @@ const provider = new providers.JsonRpcProvider(config.near_config.nodeUrl);
 // Initialize Express
 const app = express();
 
-// Initialize express middlewares
+// Initialize middlewares
 app.use(express.json());
 
-// Helper functions
-async function generateKeystore(account_id = null, private_key = null) {
+app.use(async (req, res, next) => {
+  const account_id = req.body.account_id;
+  const private_key = req.body.private_key;
+
   const keyStore = new keyStores.InMemoryKeyStore();
-
   if (account_id && private_key) {
-    const PRIVATE_KEY = req.body.private_key;
-    const account_id = req.body.account_id;
-    const keyPair = KeyPair.fromString(PRIVATE_KEY);
+    const keyPair = KeyPair.fromString(private_key);
 
-    await keyStore.setKey(config.near_config.networkId, account_id, keyPair);
+    await keyStore
+      .setKey(config.near_config.networkId, account_id, keyPair)
+      .catch((error) => next(error));
   }
+  const near_config = {
+    ...config.near_config,
+    keyStore: keyStore,
+  };
 
-  return keyStore;
-}
+  const near = await connect(near_config).catch((error) => next(error));
+
+  req.near = near;
+
+  next();
+});
+
+// Helper functions
 
 /*
     ROUTES
@@ -68,16 +79,9 @@ app.get("/", (req, res) => {
 
 // VIEW - Get account state
 app.get("/wallets/:wallet_id", async (req, res) => {
+  const near = req.near;
+
   const wallet_id = req.params.wallet_id;
-
-  const keyStore = generateKeystore();
-
-  const near_config = {
-    ...config.near_config,
-    keyStore: keyStore,
-  };
-
-  const near = await connect(near_config);
 
   await near
     .account(wallet_id)
@@ -89,16 +93,9 @@ app.get("/wallets/:wallet_id", async (req, res) => {
 
 // VIEW - Get account balance
 app.get("/wallets/:wallet_id/balance", async (req, res) => {
+  const near = req.near;
+
   const wallet_id = req.params.wallet_id;
-
-  const keyStore = generateKeystore();
-
-  const near_config = {
-    ...config.near_config,
-    keyStore: keyStore,
-  };
-
-  const near = await connect(near_config);
 
   await near
     .account(wallet_id)
@@ -110,14 +107,7 @@ app.get("/wallets/:wallet_id/balance", async (req, res) => {
 
 // VIEW - Call View contract function
 app.get("/contract/:contract_id/:function_name", async (req, res) => {
-  const keyStore = generateKeystore();
-
-  const near_config = {
-    ...config.near_config,
-    keyStore: keyStore,
-  };
-
-  const near = await connect(near_config);
+  const near = req.near;
 
   const contract_id = req.params.contract_id;
   const function_name = req.params.function_name;
@@ -135,24 +125,30 @@ app.get("/contract/:contract_id/:function_name", async (req, res) => {
 
 // CALL - Call contract function
 app.post("/contract/function_call", async (req, res) => {
+  const near = req.near;
+
+  const account_id = req.body.account_id;
   const contract_id = req.body.contract_id;
-  const function_name = req.params.function_name;
-  const keyStore = generateKeystore(req.body.private_key, req.body.account_id);
+  const function_name = req.body.function_name;
+  const params = req.body.params || {};
+  const gas = req.body.gas || "300000000000000";
+  const attached_deposit =
+    (req.body.deposit && utils.format.parseNearAmount(req.body.deposit)) ||
+    utils.format.parseNearAmount("0.1");
 
-  const near_config = {
-    ...config.near_config,
-    keyStore: keyStore,
-  };
-
-  const near = await connect(near_config);
-
-  const contract_account = await near.account(contract_id);
-
-  const result = await contract_account
-    .viewFunction(contract_id, function_name, req.query)
+  const signer_account = await near.account(account_id);
+  console.log(function_name);
+  const result = await signer_account
+    .functionCall({
+      contractId: contract_id,
+      methodName: function_name,
+      args: params,
+      gas: gas,
+      attachedDeposit: attached_deposit,
+    })
     .catch((error) => {
-      console.log(error);
-      res.status(500).send("Invalid function call or parameters.");
+      console.error(error);
+      res.status(500).send(error);
     });
 
   res.send(result);

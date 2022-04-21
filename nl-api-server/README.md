@@ -37,6 +37,22 @@ node app.js
 
 **TODO**: Add API documentation - could use Swagger for this.
 
+### POST - Call function
+
+Call function endpoint accepts the following (example) parameters inside its **body**:
+
+```json
+{
+  "account_id": "lb4.testnet",
+  "private_key": "<private_key>",
+  "contract_id": "exxaverse-paras-test.testnet",
+  "function_name": "nft_mint",
+  "params": {<args needed by the specific function called, dict object>},
+  "gas": <prepaid_gas>,
+  "deposit": <deposit in NEAR>
+}
+```
+
 # Optional high level API
 
 |     |                                      |                                                                                                                           |
