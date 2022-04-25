@@ -188,6 +188,23 @@ app.get(
   }
 );
 
+// GET - Key pair
+app.get("/keypair", async (_, res) => {
+  const keypair = utils.KeyPair.fromRandom("ed25519");
+
+  result = {
+    public_key: keypair.publicKey.toString(),
+    private_key: keypair.secretKey,
+  };
+
+  res
+    .set("Last-Modified", new Date())
+    .set("Expires", new Date())
+    .set("Cache-Control", "no-cache")
+    .set("Pragma", "no-cache")
+    .send(result);
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
