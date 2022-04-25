@@ -222,9 +222,6 @@ app.post("/sign_url", async (req, res) => {
   try {
     const keypair = utils.KeyPair.fromRandom("ed25519");
 
-    const add_key_keypair =
-      method === "add_key" ? utils.KeyPair.fromRandom("ed25519") : {};
-
     if (!network) network = "mainnet";
     // Format deposit
     const deposit_value =
@@ -236,10 +233,11 @@ app.post("/sign_url", async (req, res) => {
     const actions = [
       method === "!transfer"
         ? transactions.transfer(deposit_value)
-        : // I don't believe this works since we don't save the private key anywhere
+        : // In order to use this, the key pair has to be generated beforehand
+        // and only send the public key through the call
         method === "add_key"
         ? transactions.addKey(
-            add_key_keypair.publicKey,
+            params.public_key,
             transactions.functionCallAccessKey(
               params.contract_id,
               params.methodNames,
