@@ -6,9 +6,6 @@ const { connect, keyStores, KeyPair, transactions, providers, utils } = nearAPI;
 const config = require("./config/config")();
 const port = config.port;
 
-// Init NEAR requirements
-const provider = new providers.JsonRpcProvider(config.near_config.nodeUrl);
-
 // Initialize Express
 const app = express();
 
@@ -47,35 +44,6 @@ app.use(async (req, res, next) => {
 app.get("/", (req, res) => {
   res.send("Near integration server.");
 });
-
-// app.post("/wallets", async (req, res) => {
-//   // Setup keystore
-//   const keyStore = generateKeystore(req.body.account_id, req.body.private_key);
-
-//   // Get required body params
-//   const account_id = req.body.account_id;
-
-//   const near_config = {
-//     ...config.near_config,
-//     keyStore: keyStore,
-//   };
-
-//   const near = await connect(near_config);
-
-//   const account = await near.account("exxatest-5.testnet");
-//   const account2 = await near.account(account_id);
-//   // const new_account = req.body.new_account;
-//   console.log(account);
-//   console.log(await account2.getAccountBalance());
-//   let result = await account2
-//     .sendMoney(
-//       "lb4.testnet", // receiver account
-//       "1000000000000000000000000" // amount in yoctoNEAR
-//     )
-//     .catch((error) => error);
-//   console.log(result);
-//   res.send("ack");
-// });
 
 // VIEW - Get account state
 app.get("/wallets/:wallet_id", async (req, res) => {
@@ -137,7 +105,7 @@ app.post("/contract/function_call", async (req, res) => {
     utils.format.parseNearAmount("0.1");
 
   const signer_account = await near.account(account_id);
-  console.log(function_name);
+
   const result = await signer_account
     .functionCall({
       contractId: contract_id,
@@ -153,6 +121,72 @@ app.post("/contract/function_call", async (req, res) => {
 
   res.send(result);
 });
+
+// CALL - Call contract function
+app.post("/contract/function_call", async (req, res) => {
+  const near = req.near;
+
+  const account_id = req.body.account_id;
+  const contract_id = req.body.contract_id;
+  const function_name = req.body.function_name;
+  const params = req.body.params || {};
+  const gas = req.body.gas || "300000000000000";
+  const attached_deposit =
+    (req.body.deposit && utils.format.parseNearAmount(req.body.deposit)) ||
+    utils.format.parseNearAmount("0.1");
+
+  const signer_account = await near.account(account_id);
+
+  const result = await signer_account
+    .functionCall({
+      contractId: contract_id,
+      methodName: function_name,
+      args: params,
+      gas: gas,
+      attachedDeposit: attached_deposit,
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send(error);
+    });
+
+  res.send(result);
+});
+
+// GET - Get transaction info
+app.get(
+  "/contract/:contract_id/transactions/:transaction_id",
+  async (req, res) => {
+    const near = req.near;
+
+    const contract_id = req.params.contract_id;
+    const transaction_id = req.params.transaction_id;
+
+    const result = await near.connection.provider
+      .txStatus(transaction_id, contract_id)
+      .catch((error) => res.status(500).send(error));
+
+    res.send(result);
+  }
+);
+
+// TODO: GET - Get recent transactions for account
+app.get(
+  "/contract/:contract_id/transactions/:transaction_id",
+  async (req, res) => {
+    const near = req.near;
+
+    const contract_id = req.params.contract_id;
+    const transaction_id = req.params.transaction_id;
+
+    const result = await near.connection.provider.txStatus(
+      transaction_id,
+      contract_id
+    );
+
+    res.send(result);
+  }
+);
 
 // Start server
 app.listen(port, () => {
