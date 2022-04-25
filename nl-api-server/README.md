@@ -25,15 +25,17 @@ node app.js
 
 # Core API
 
-|      |                                                        |                                                                             |
-| ---- | ------------------------------------------------------ | --------------------------------------------------------------------------- |
-| GET  | /wallets/<wallet_id>                                   | Get basic info about a wallet (at least check if it exists)                 |
-| GET  | /wallets/<wallet_id>/balance                           | Get specific info about a wallet: its balance                               |
-| POST | /contract                                              | Deploy a contract                                                           |
-| POST | /contract/call_function                                | Call a modifying function on a contract -- params are found in request body |
-| GET  | /contract/:contract_id/:function_name?<args>           | Call a non modifying function on a contract                                 |
-| GET  | /contract/<contract_id>/transactions                   | List previous function calls on a contract                                  |
-| GET  | /contract/<contract_id>/transactions/<transactions_id> | Get info about a specific function call                                     |
+|      |                                                        |                                                                                                                                  |
+| ---- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| GET  | /wallets/<wallet_id>                                   | Get basic info about a wallet (at least check if it exists)                                                                      |
+| GET  | /wallets/<wallet_id>/balance                           | Get specific info about a wallet: its balance                                                                                    |
+| POST | /contract                                              | Deploy a contract                                                                                                                |
+| POST | /contract/call_function                                | Call a modifying function on a contract -- params are found in request body                                                      |
+| GET  | /contract/:contract_id/:function_name?<args>           | Call a non modifying function on a contract                                                                                      |
+| GET  | /contract/<contract_id>/transactions                   | List previous function calls on a contract                                                                                       |
+| GET  | /contract/<contract_id>/transactions/<transactions_id> | Get info about a specific function call                                                                                          |
+| GET  | /keypair                                               | Generates a public-key pair using Near API and returns it                                                                        |
+| GET  | /sign_url                                              | Returns a sign_url to be approved by the user. More info [here](https://github.com/near-examples/near-api-rest-server#sign_url). |
 
 **TODO**: Add API documentation - could use Swagger for this.
 
