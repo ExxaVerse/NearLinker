@@ -1,18 +1,19 @@
 // Copyright 2022 ExxaVerse LLC. All Rights Reserved.
 
 #include"WalletComponent.h"
+#include"FunctionLibrary.h"
 #include"log.h"
 #include"Containers/UnrealString.h"
 #include"Misc/FileHelper.h"
 #include"RSA.h"
+#include"Runtime/Online/HTTP/Public/Http.h"
+#include"JsonObjectConverter.h"
 
 void UNearlinkerWalletComponent::SetCredentials(FString const& credentials_string){
 	TArray<uint8> data;
 	data.SetNum(credentials_string.Len()*sizeof(TCHAR));
 	data.SetNum(StringToBytes(credentials_string, data.GetData(), data.Num()));
 
-	//FRSA::EncryptPublic(data, this->credentials, rsa_key);
-	UE_LOG(LogNearlinker, Error, TEXT("TODO: encrypt credentials in plugin RAM"));
 	this->credentials=data;
 
 	UE_LOG(LogNearlinker, Log, TEXT("Credentials set (%d bytes)"), this->credentials.Num());
@@ -59,6 +60,32 @@ bool UNearlinkerWalletComponent::LoadCredentials(FString const& file_path, FStri
 	FAES::DecryptData(data.GetData(), data.Num(), TCHAR_TO_ANSI(key.GetCharArray().GetData()));		
 	credentials=data;
 	return true;
+}
+
+void UNearlinkerWalletComponent::CreateCredentials(FString const& account, FThenDelegate const& then, FNearAddKeyDelegate const& ask_add_key, FString const& network, FString const& client_name){
+	//For some reason, UE default inputs are cleared if passed by reference to lambdas
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("GET", FString{"/keypair"}, [this,then,ask_add_key,account,network,client_name](FString response, bool request_succeded){
+		if(!request_succeded){
+			UE_LOG(LogNearlinker, Error, TEXT("CreateCredentials: failed to request a new key pair from the integration server"));
+			return; 
+		}
+		FNearKeyPair key_pair;
+		FJsonObjectConverter::JsonObjectStringToUStruct(response, &key_pair);
+		
+		FString const url_to_add_key="https://"+network+"/login/?referrer="+FPlatformHttp::UrlEncode(client_name)+"&public_key="+FPlatformHttp::UrlEncode(key_pair.public_key);
+		UE_LOG(LogNearlinker, Log, TEXT("CreateCredentials: asking to add a new key at %s"), *url_to_add_key);
+		bool key_was_added=[&](){
+			if(ask_add_key.IsBound()){
+				return ask_add_key.Execute(url_to_add_key);
+			}
+			FPlatformProcess::LaunchURL(*url_to_add_key, nullptr, nullptr);
+			return true;
+		}();
+		if(key_was_added){
+			this->SetCredentials(account+":"+key_pair.private_key);
+		}
+		then.ExecuteIfBound();
+	});
 }
 
 FString UNearlinkerWalletComponent::GetAuthorizationForIntegrationServer(){

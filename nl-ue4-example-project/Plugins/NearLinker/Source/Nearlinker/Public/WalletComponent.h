@@ -7,6 +7,19 @@
 #include"WalletComponent.generated.h" 
 
 
+DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(bool, FNearAddKeyDelegate, FString, url);
+DECLARE_DYNAMIC_DELEGATE(FThenDelegate);
+
+USTRUCT()
+struct FNearKeyPair{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString public_key;
+	UPROPERTY()
+	FString private_key;
+};
+
 UCLASS(Blueprintable)
 class NEARLINKER_API UNearlinkerWalletComponent: public UActorComponent{
 	GENERATED_BODY()
@@ -21,6 +34,8 @@ public:
 	bool LoadCredentials(FString const& file_path, FString const& password);
 	UFUNCTION(BlueprintCallable, Category="Nearlinker")
 	bool SaveCredentials(FString const& file_path, FString const& password);
+	UFUNCTION(BlueprintCallable, Category="Nearlinker", meta=(AutoCreateRefTerm="ask_add_key,network,client_name"))
+	void CreateCredentials(FString const& account, FThenDelegate const& then, FNearAddKeyDelegate const& ask_add_key, FString const& network="wallet.near.org", FString const& client_name="NearLinker");
 	UFUNCTION(BlueprintCallable, Category="Nearlinker")
 	FString GetAuthorizationForIntegrationServer();
 };
