@@ -197,9 +197,10 @@ app.get("/keypair", async (_, res) => {
     private_key: keypair.secretKey,
   };
 
+  // Commented Last-Modified header since it could throw errors
   res
-    .set("Last-Modified", new Date())
-    .set("Expires", new Date())
+    .set("Last-Modified", new Date().toUTCString())
+    .set("Expires", new Date().toUTCString())
     .set("Cache-Control", "no-cache")
     .set("Pragma", "no-cache")
     .send(result);
@@ -237,7 +238,7 @@ app.post("/sign_url", async (req, res) => {
         // and only send the public key through the call
         method === "add_key"
         ? transactions.addKey(
-            params.public_key,
+            utils.PublicKey.fromString(params.public_key),
             transactions.functionCallAccessKey(
               params.contract_id,
               params.methodNames,
@@ -281,9 +282,11 @@ app.post("/sign_url", async (req, res) => {
     if (meta) newUrl.searchParams.set("meta", meta);
     res.send(newUrl.href);
   } catch (error) {
+    console.log(error);
     return res.status(404).send(error);
   }
 });
+
 // Start server
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
