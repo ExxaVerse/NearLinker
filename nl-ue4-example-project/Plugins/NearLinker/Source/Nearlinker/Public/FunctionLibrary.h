@@ -5,19 +5,30 @@
 #include"Kismet/BlueprintFunctionLibrary.h"
 #include"Templates/UniquePtr.h"
 #include"Interfaces/IHttpRequest.h"
+#include<functional>
 
 #include"FunctionLibrary.generated.h"
 
 class FMonitoredProcess;
 
 USTRUCT(BlueprintType)
-struct FFunctionCallDescription{
+struct FFunctionCallData{
 	GENERATED_BODY()
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<FString,FString> parameters;
+};
+
+USTRUCT(BlueprintType)
+struct FContractCallData{
+	GENERATED_BODY()
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString account_id;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FFunctionCallData function;
 };
 
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FNearHttpRequestCompleteDelegate, FString, Response, bool, bConnectedSuccessfully);
@@ -38,12 +49,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Nearlinker", meta=(AutoCreateRefTerm="method,resource,data,wallet_authorization"))
 	static void SendRequestToIntegrationServer(FString const& method, FString const& resource, FNearHttpRequestCompleteDelegate const& response_handler, FString const& wallet_authorization="", FString const& data="");
 
+	static void SendRequestToIntegrationServer(FString const& method, FString const& resource, std::function<void(FString,bool)> const& response_handler, FString const& wallet_authorization="", FString const& data="");
+
 	//UFUNCTION(BlueprintCallable, Category="Nearlinker")
 	//static void CreateWallet(FString const& wallet_name, FNearHttpRequestCompleteDelegate const& response_handler);
 	//UFUNCTION(BlueprintCallable, Category="Nearlinker")
 	//static void DeployContract(FNearContract const& contract, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler);
 	UFUNCTION(BlueprintCallable, Category="Nearlinker", meta=(AutoCreateRefTerm="contract_id"))
-	static void ContractView(FString const& contract_id, FFunctionCallDescription const& function_description, FNearHttpRequestCompleteDelegate const& response_handler);
+	static void ContractView(FString const& contract_id, FFunctionCallData const& function_description, FNearHttpRequestCompleteDelegate const& response_handler);
 	UFUNCTION(BlueprintCallable, Category="Nearlinker", meta=(AutoCreateRefTerm="contract_id"))
-	static void ContractCall(FString const& contract_id, FFunctionCallDescription const& function_description, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler);
+	static void ContractCall(FString const& contract_id, FFunctionCallData const& function_description, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler);
 };

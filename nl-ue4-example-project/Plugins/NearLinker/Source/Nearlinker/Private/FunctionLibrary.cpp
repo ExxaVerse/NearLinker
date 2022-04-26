@@ -49,8 +49,15 @@ void UNearlinkerFunctionLibrary::StopIntegrationServer(){
 }
 
 void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, FNearHttpRequestCompleteDelegate const& response_handler, FString const& wallet_authorization, FString const& data){
+	return UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(method, resource, [response_handler](FString s,bool b){
+		if(!response_handler.ExecuteIfBound(s,b)){
+			UE_LOG(LogNearlinker, Log, TEXT("No response handler"));
+		}
+	}, wallet_authorization, data);
+}
+void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, std::function<void(FString,bool)> const& response_handler, FString const& wallet_authorization, FString const& data){
 	//Log
-	UE_LOG(LogNearlinker, Log, TEXT("Integration server request on %s with data %s"), *(GetMutableDefault<UNearlinkerSettings>()->server_url+resource), *data);
+	UE_LOG(LogNearlinker, Log, TEXT("Integration server %s request on %s"), *method, *(GetMutableDefault<UNearlinkerSettings>()->server_url+resource));
 	if(data.Len()>0){
 		UE_LOG(LogNearlinker, Log, TEXT("with data %s"), *data);
 	}
@@ -84,10 +91,11 @@ void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& m
 	}
 	HttpRequest->OnProcessRequestComplete().BindLambda([response_handler](FHttpRequestPtr request, FHttpResponsePtr response, bool was_successful){
 		UE_LOG(LogNearlinker, Log, TEXT("Integration server request complete"));
-		if(!response_handler.ExecuteIfBound(response.IsValid()?response->GetContentAsString():FString{}, was_successful)){
-			UE_LOG(LogNearlinker, Log, TEXT("No response handler"));
-		}
+#if WITH_EDITOR
+		// response might hold sensible information, so log it only in dev builds
 		UE_LOG(LogNearlinker, Log, TEXT("%s"), *response->GetContentAsString());
+#endif
+		response_handler(response.IsValid()?response->GetContentAsString():FString{}, was_successful);
 	});
 	HttpRequest->ProcessRequest();
 }
@@ -99,26 +107,28 @@ void UNearlinkerFunctionLibrary::CreateWallet(FString const& wallet_name, FNearH
 
 void UNearlinkerFunctionLibrary::DeployContract(FNearContract const& contract, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler){
 	FString data_json;
-	if(!FJsonObjectConverter::UStructToJsonObjectString<FNearContract>(contract, data_json)){
+	if(!FJsonObjectConverter::UStructToJsonObjectString(contract, data_json)){
 		UE_LOG(LogNearlinker, Error, TEXT("Failed to export contract data to Json"));
 		returna
 	}
-	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("POST", "/contracts", response_handler, wallet_authorization, data_json);
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("POST", "/contract", response_handler, wallet_authorization, data_json);
 }
 */
 
-void UNearlinkerFunctionLibrary::ContractCall(FString const& contract_id, FFunctionCallDescription const& function_description, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler){
+void UNearlinkerFunctionLibrary::ContractCall(FString const& contract_id, FFunctionCallData const& function_description, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler){
+
 	FString data_json;
-	if(!FJsonObjectConverter::UStructToJsonObjectString<FFunctionCallDescription>(function_description, data_json)){
+	if(!FJsonObjectConverter::UStructToJsonObjectString(function_description, data_json)){
 		UE_LOG(LogNearlinker, Error, TEXT("Failed to export contract function call data to Json"));
 		return;
 	}
-	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("POST", FString{"/contracts/"}+contract_id+FString{"/transactions"}, response_handler, wallet_authorization, data_json);
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("POST", FString{"/contract/"}+contract_id+FString{"/call_function"}, response_handler, wallet_authorization, data_json);
 }
-void UNearlinkerFunctionLibrary::ContractView(FString const& contract_id, FFunctionCallDescription const& function_description, FNearHttpRequestCompleteDelegate const& response_handler){
+void UNearlinkerFunctionLibrary::ContractView(FString const& contract_id, FFunctionCallData const& function_description, FNearHttpRequestCompleteDelegate const& response_handler){
 	FString function_description_string=function_description.name;
 	if(function_description.parameters.Num()>0)                  function_description_string+="?";
 	for(auto const& [key,value]:function_description.parameters) function_description_string+=key+"="+value+"&";
 	function_description_string.RemoveFromEnd("&");
-	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("GET", FString{"/contracts"}/contract_id/function_description_string, response_handler);
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("GET", FString{"/contract"}/contract_id/function_description_string, response_handler);
 }
+
