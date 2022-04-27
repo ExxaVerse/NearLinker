@@ -30,8 +30,8 @@ node app.js
 | GET  | /wallets/<wallet_id>                                   | Get basic info about a wallet (at least check if it exists)                                                                      |
 | GET  | /wallets/<wallet_id>/balance                           | Get specific info about a wallet: its balance                                                                                    |
 | POST | /contract                                              | Deploy a contract                                                                                                                |
-| POST | /contract/call_function                                | Call a modifying function on a contract -- params are found in request body                                                      |
-| GET  | /contract/:contract_id/:function_name?<args>           | Call a non modifying function on a contract                                                                                      |
+| POST | /contract/<contract_id>/call                           | Call a modifying function on a contract -- params are found in request body                                                      |
+| GET  | /contract/<contract_id>/<function_name>?<args>         | Call a non modifying function on a contract                                                                                      |
 | GET  | /contract/<contract_id>/transactions                   | List previous function calls on a contract                                                                                       |
 | GET  | /contract/<contract_id>/transactions/<transactions_id> | Get info about a specific function call                                                                                          |
 | GET  | /keypair                                               | Generates a public-key pair using Near API and returns it                                                                        |
@@ -45,13 +45,19 @@ Call function endpoint accepts the following (example) parameters inside its **b
 
 ```json
 {
-  "account_id": "lb4.testnet",
-  "private_key": "<private_key>",
-  "contract_id": "exxaverse-paras-test.testnet",
-  "function_name": "nft_mint",
-  "params": {<args needed by the specific function called, dict object>},
-  "gas": <prepaid_gas>,
-  "deposit": <deposit in NEAR>
+    "account_id": "<account_id>",
+    "private_key": "<private_key>",
+    "function":
+    {
+        "name": "nft_transfer",
+        "parameters":
+        {
+            "receiver_id": "godefv2.testnet",
+            "token_id": "token-1"
+        }
+    },
+    "gas": "<prepaid_gas in yoctoNEAR>",
+    "deposit": "<deposit in NEAR>"
 }
 ```
 

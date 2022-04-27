@@ -92,44 +92,13 @@ app.get("/contract/:contract_id/:function_name", async (req, res) => {
 });
 
 // CALL - Call contract function
-app.post("/contract/function_call", async (req, res) => {
+app.post("/contract/:contract_id/call", async (req, res) => {
   const near = req.near;
 
   const account_id = req.body.account_id;
-  const contract_id = req.body.contract_id;
-  const function_name = req.body.function_name;
-  const params = req.body.params || {};
-  const gas = req.body.gas || "300000000000000";
-  const attached_deposit =
-    (req.body.deposit && utils.format.parseNearAmount(req.body.deposit)) ||
-    utils.format.parseNearAmount("0.1");
-
-  const signer_account = await near.account(account_id);
-
-  const result = await signer_account
-    .functionCall({
-      contractId: contract_id,
-      methodName: function_name,
-      args: params,
-      gas: gas,
-      attachedDeposit: attached_deposit,
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send(error);
-    });
-
-  res.send(result);
-});
-
-// CALL - Call contract function
-app.post("/contract/function_call", async (req, res) => {
-  const near = req.near;
-
-  const account_id = req.body.account_id;
-  const contract_id = req.body.contract_id;
-  const function_name = req.body.function_name;
-  const params = req.body.params || {};
+  const contract_id = req.params.contract_id;
+  const function_name = req.body.function.name;
+  const params = req.body.function.parameters || {};
   const gas = req.body.gas || "300000000000000";
   const attached_deposit =
     (req.body.deposit && utils.format.parseNearAmount(req.body.deposit)) ||

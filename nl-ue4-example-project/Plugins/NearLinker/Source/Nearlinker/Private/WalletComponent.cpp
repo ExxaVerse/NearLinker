@@ -89,6 +89,8 @@ void UNearlinkerWalletComponent::CreateCredentials(FString const& account, FThen
 }
 
 FString UNearlinkerWalletComponent::GetAuthorizationForIntegrationServer(){
-	FString const credentials_string=BytesToString(this->credentials.GetData(), this->credentials.Num());
+	auto credentials_len=this->credentials.Find('\0');
+	if(credentials_len==INDEX_NONE) credentials_len=this->credentials.Num();
+	FString const credentials_string=BytesToString(this->credentials.GetData(), credentials_len);
 	return credentials_string;
 }

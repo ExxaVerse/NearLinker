@@ -48,14 +48,14 @@ void UNearlinkerFunctionLibrary::StopIntegrationServer(){
 	UE_LOG(LogNearlinker, Log, TEXT("Integration server stopped"));
 }
 
-void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, FNearHttpRequestCompleteDelegate const& response_handler, FString const& wallet_authorization, FString const& data){
+void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, FNearHttpRequestCompleteDelegate const& response_handler, FString const& data){
 	return UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(method, resource, [response_handler](FString s,bool b){
 		if(!response_handler.ExecuteIfBound(s,b)){
 			UE_LOG(LogNearlinker, Log, TEXT("No response handler"));
 		}
-	}, wallet_authorization, data);
+	}, data);
 }
-void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, std::function<void(FString,bool)> const& response_handler, FString const& wallet_authorization, FString const& data){
+void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, std::function<void(FString,bool)> const& response_handler, FString const& data){
 	//Log
 	UE_LOG(LogNearlinker, Log, TEXT("Integration server %s request on %s"), *method, *(GetMutableDefault<UNearlinkerSettings>()->server_url+resource));
 	if(data.Len()>0){
@@ -74,13 +74,6 @@ void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& m
 	HttpRequest->SetVerb(method);
 	HttpRequest->SetURL(GetMutableDefault<UNearlinkerSettings>()->server_url+resource);
 	HttpRequest->SetHeader(TEXT("User-Agent"), TEXT("X-UnrealEngine-Agent"));
-	if(wallet_authorization.Len()>0){
-		if(method==TEXT("GET")){
-			UE_LOG(LogNearlinker, Error, TEXT("Integration server request should not include credentials when the method is GET"));
-			return;
-		}
-		HttpRequest->SetHeader(TEXT("Authorization"), FString{TEXT("Basic ")}+FBase64::Encode(wallet_authorization));
-	}
 	if(data.Len()>0){
 		if(method==TEXT("GET")){
 			UE_LOG(LogNearlinker, Error, TEXT("Integration server request should not include data when the method is GET"));
@@ -115,14 +108,19 @@ void UNearlinkerFunctionLibrary::DeployContract(FNearContract const& contract, F
 }
 */
 
-void UNearlinkerFunctionLibrary::ContractCall(FString const& contract_id, FFunctionCallData const& function_description, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler){
+void UNearlinkerFunctionLibrary::ContractCall(FString const& contract_id, FFunctionCallData const& function_description, FString const& wallet_authorization, FNearHttpRequestCompleteDelegate const& response_handler, FString gas, FString deposit){
+	FContractCallData data;
+	wallet_authorization.Split(":", &data.account_id, &data.private_key);
+	data.function=function_description;
+	data.gas=gas;
+	data.deposit=deposit;
 
 	FString data_json;
-	if(!FJsonObjectConverter::UStructToJsonObjectString(function_description, data_json)){
+	if(!FJsonObjectConverter::UStructToJsonObjectString(data, data_json)){
 		UE_LOG(LogNearlinker, Error, TEXT("Failed to export contract function call data to Json"));
 		return;
 	}
-	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("POST", FString{"/contract/"}+contract_id+FString{"/call_function"}, response_handler, wallet_authorization, data_json);
+	UNearlinkerFunctionLibrary::SendRequestToIntegrationServer("POST", FString{"/contract/"}+contract_id+FString{"/call"}, response_handler, data_json);
 }
 void UNearlinkerFunctionLibrary::ContractView(FString const& contract_id, FFunctionCallData const& function_description, FNearHttpRequestCompleteDelegate const& response_handler){
 	FString function_description_string=function_description.name;
