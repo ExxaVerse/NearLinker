@@ -27,13 +27,13 @@ app.use(async (req, res, next) => {
       );
 
       const decrpyted_private_key = Buffer.concat([
-        decipher.update(private_key, "hex"),
+        decipher.update(private_key, "base64"),
         decipher.final(),
       ]).toString();
 
-      console.log(decrpyted_private_key);
-
-      const keyPair = KeyPair.fromString(decrpyted_private_key);
+      const keyPair = KeyPair.fromString(
+        decrpyted_private_key.toString("ascii")
+      );
 
       await keyStore
         .setKey(config.near_config.networkId, account_id, keyPair)
@@ -207,7 +207,7 @@ app.get("/keypair", async (_, res) => {
     const encrypted_private_key = Buffer.concat([
       cipher.update(Buffer.from(keypair.secretKey.toString())),
       cipher.final(),
-    ]).toString("hex");
+    ]).toString("base64");
 
     result = {
       public_key: keypair.publicKey.toString(),
