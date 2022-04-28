@@ -1,6 +1,7 @@
 const express = require("express");
 const nearAPI = require("near-api-js");
 const { connect, keyStores, KeyPair, transactions, providers, utils } = nearAPI;
+const crypto = require("crypto");
 
 // Receive server configuration
 const config = require("./config/config")();
@@ -19,12 +20,26 @@ app.use(async (req, res, next) => {
 
     const keyStore = new keyStores.InMemoryKeyStore();
     if (account_id && private_key) {
-      const keyPair = KeyPair.fromString(private_key);
+      const decipher = crypto.createDecipheriv(
+        config.encryption_algorithm,
+        config.encryption_key,
+        config.initialization_vector
+      );
+
+      const decrpyted_private_key = Buffer.concat([
+        decipher.update(private_key, "hex"),
+        decipher.final(),
+      ]).toString();
+
+      console.log(decrpyted_private_key);
+
+      const keyPair = KeyPair.fromString(decrpyted_private_key);
 
       await keyStore
         .setKey(config.near_config.networkId, account_id, keyPair)
         .catch((error) => next(error));
     }
+
     const near_config = {
       ...config.near_config,
       keyStore: keyStore,
@@ -183,10 +198,20 @@ app.get(
 app.get("/keypair", async (_, res) => {
   try {
     const keypair = utils.KeyPair.fromRandom("ed25519");
+    const cipher = crypto.createCipheriv(
+      config.encryption_algorithm,
+      config.encryption_key,
+      config.initialization_vector
+    );
+
+    const encrypted_private_key = Buffer.concat([
+      cipher.update(Buffer.from(keypair.secretKey.toString())),
+      cipher.final(),
+    ]).toString("hex");
 
     result = {
       public_key: keypair.publicKey.toString(),
-      private_key: keypair.secretKey,
+      private_key: encrypted_private_key,
     };
 
     // Commented Last-Modified header since it could throw errors
@@ -197,6 +222,7 @@ app.get("/keypair", async (_, res) => {
       .set("Pragma", "no-cache")
       .send(result);
   } catch (error) {
+    console.log(error);
     res.status(500).send(error);
   }
 });

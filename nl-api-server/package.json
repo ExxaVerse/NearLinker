@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "crypto": "^1.0.1",
     "express": "^4.17.3",
     "near-api-js": "^0.44.2",
     "node": "^17.7.2",
