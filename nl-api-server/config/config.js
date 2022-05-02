@@ -2,9 +2,10 @@ const crypto = require("crypto");
 
 module.exports = () => {
   const process_env = process.env.NODE_ENV || "development";
-  const contract_name = process.env.CONTRACT_NAME || "lb4.testnet";
   const port = process.env.PORT || "3000";
-
+  const enable_ssl = process.env.ENABLE_SSL || false;
+  const ssl_key_path = process.env.SSL_KEY_PATH || "./test_ssl_cert/key.pem";
+  const ssl_cert_path = process.env.SSL_CERT_PATH || "./test_ssl_cert/cert.pem";
   // TODO: read from file/as env variable
   const encryption_key =
     process.env.AES_KEY || "JaNcRfUjXn2r5u8x/A?D(G+KbPeSgVkY";
@@ -39,9 +40,13 @@ module.exports = () => {
   return {
     port: port,
     near_config: near_config,
-    contract_name: contract_name,
+    // AES setup
     encryption_algorithm: encryption_algorithm,
     encryption_key: encryption_key,
     initialization_vector: initialization_vector,
+    // SSL setup
+    enable_ssl: enable_ssl,
+    ssl_key_path: ssl_key_path,
+    ssl_cert_path: ssl_cert_path,
   };
 };

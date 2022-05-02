@@ -1,5 +1,7 @@
 const express = require("express");
 const nearAPI = require("near-api-js");
+const https = require("https");
+const fs = require("fs");
 const { connect, keyStores, KeyPair, transactions, providers, utils } = nearAPI;
 const crypto = require("crypto");
 
@@ -308,7 +310,20 @@ app.post("/sign_url", async (req, res) => {
   }
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+// INIT SSL IF ENABLED
+if (config.enable_ssl) {
+  const options = {
+    key: fs.readFileSync(config.ssl_key_path),
+    cert: fs.readFileSync(config.ssl_cert_path),
+  };
+
+  // Start HTTPS server
+  https.createServer(options, app).listen(port, () => {
+    console.log(`HTTPS server started on port: ${port}`);
+  });
+} else {
+  // Start HTTP server
+  app.listen(port, () => {
+    console.log(`HTTP server started on port: ${port}`);
+  });
+}
