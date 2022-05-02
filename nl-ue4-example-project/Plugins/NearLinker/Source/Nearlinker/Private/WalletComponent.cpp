@@ -25,11 +25,6 @@ void UNearlinkerWalletComponent::SetCredentials(FString const& credentials_strin
 }
 
 bool UNearlinkerWalletComponent::SaveCredentials(FString const& file_path, FString const& password){
-	FText error;
-	if(!FFileHelper::IsFilenameValidForSaving(file_path, error)){
-		UE_LOG(LogNearlinker, Error, TEXT("LoadWalletFromFile: invalid filename"));
-		return false;
-	}
 	TArray<uint8> data=this->credentials;
 	//Adjust buffer size for AES
 	uint32 RawSize=Align(data.Num(), FAES::AESBlockSize);
@@ -41,9 +36,10 @@ bool UNearlinkerWalletComponent::SaveCredentials(FString const& file_path, FStri
 	FAES::EncryptData(data.GetData(), data.Num(), TCHAR_TO_ANSI(key.GetCharArray().GetData()));		
 	//Save
 	if(!FFileHelper::SaveArrayToFile(data, *file_path)){
-		UE_LOG(LogNearlinker, Error, TEXT("LoadWalletFromFile: could not write to file %s"), *file_path);
+		UE_LOG(LogNearlinker, Error, TEXT("SaveWalletFromFile: could not write to file %s"), *file_path);
 		return false;
 	}
+	UE_LOG(LogNearlinker, Log, TEXT("Credentials saved to %s"), *file_path);
 	return true;
 }
 bool UNearlinkerWalletComponent::LoadCredentials(FString const& file_path, FString const& password){
@@ -83,6 +79,9 @@ void UNearlinkerWalletComponent::CreateCredentials(FString const& account, FThen
 		}();
 		if(key_was_added){
 			this->SetCredentials(account+":"+key_pair.private_key);
+		}
+		if(!then.IsBound()){
+			UE_LOG(LogNearlinker, Verbose, TEXT("CreateCredentials: then event is not bound"));
 		}
 		then.ExecuteIfBound();
 	});

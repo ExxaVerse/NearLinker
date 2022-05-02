@@ -14,7 +14,9 @@ But in practice, he will trust the game client to do it, and give it some access
 On the NEAR blockchain, this access data is a private key specific to each client software. Again, the user will trust the game client to generate the key pair, register the public key on his wallet, and store the private key safely.
 For increased security, the key pair will be generated on the integration server and encrypted by its own private key, so that this key will be usable only through the integration server. This encrypted near private key will be the UE plugin's access data.
 
- To register the generated public key, the game client will redirect the user to near.org/login page (same as NEAR CLI). If a malicious software could detect that the game is launching the web page to register the public key, it could launch its own page at the same time with its own key and trick the user into accepting it instead of the game's key. To prevent that, each game would need to prove its identity somehow, but no authentication protocol is available yet.
+To register the generated public key, the game client will redirect the user to near.org/login page (same as NEAR CLI). 
+If a malicious software could detect that the game is asking a key pair to the integration server, it could block it, make its own request, launch its own near.org/login with the key it has got, and launch a near.org/login page to trick the user into accepting it instead of the game's key. To prevent that, the game client should ask the user to not accept any key before it is told to do so.
+If a malicious software could detect that the game is launching the near.org/login page to register a public key, it could launch its own page at the same time with its own key and trick the user into accepting it instead of the game's key. To prevent that, the game client should show the key to be added before launching the web page and ask the user to check that the near.org/login contains the same key.
 
 The game client needs to keep its private key secure. So, the user will be asked for a password once per session. A hash of this password will be the key to encrypt and decrypt the private key stored on disk. 
 
@@ -26,5 +28,7 @@ Now the sensitive data is the integration server private key. How and where is i
 
 In case the integration server runs on a server somewhere, it would have its own SSL certificate as a normal server.
 
-In case the integration server runs on the same computer as the game, the game installer would generate the SSL certificate and its private key, install the game in user space including the SSL certificate, install the integration server in admin space including the corresponding private key.
+In case the integration server runs on the same computer as the game, the game installer would generate the SSL certificate and its private key, install the game in user space including the client SSL certificate, install the integration server in admin space including the server SSL certificate. 
+
+Pen tester should check that the game client accepts the integration server certificate only if it is valid. See `badssl.com` for failure cases to check.
 
