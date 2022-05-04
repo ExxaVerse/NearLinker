@@ -315,6 +315,7 @@ if (config.enable_ssl) {
   const options = {
     key: fs.readFileSync(config.ssl_key_path),
     cert: fs.readFileSync(config.ssl_cert_path),
+	ca: [fs.readFileSync(config.ssl_ca_cert_path)],
   };
 
   // Start HTTPS server

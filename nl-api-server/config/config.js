@@ -6,6 +6,7 @@ module.exports = () => {
   const enable_ssl = process.env.ENABLE_SSL || false;
   const ssl_key_path = process.env.SSL_KEY_PATH || "./test_ssl_cert/key.pem";
   const ssl_cert_path = process.env.SSL_CERT_PATH || "./test_ssl_cert/cert.pem";
+  const ssl_ca_cert_path = process.env.SSL_CA_CERT_PATH || "./test_ssl_cert/ca_cert.pem";
   // TODO: read from file/as env variable
   const encryption_key =
     process.env.AES_KEY || "JaNcRfUjXn2r5u8x/A?D(G+KbPeSgVkY";
@@ -48,5 +49,6 @@ module.exports = () => {
     enable_ssl: enable_ssl,
     ssl_key_path: ssl_key_path,
     ssl_cert_path: ssl_cert_path,
+    ssl_ca_cert_path: ssl_ca_cert_path,
   };
 };
