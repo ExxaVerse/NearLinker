@@ -9,11 +9,18 @@ const crypto = require("crypto");
 const config = require("./config/config")();
 const port = config.port;
 
+// Initialize logger
+const logger = config.logger;
+
 // Initialize Express
 const app = express();
+app.use(express.json());
 
 // Initialize middlewares
-app.use(express.json());
+app.use((req, res, next) => {
+  logger.info(req.url);
+  next();
+});
 
 app.use(async (req, res, next) => {
   try {
@@ -53,6 +60,7 @@ app.use(async (req, res, next) => {
 
     next();
   } catch (error) {
+    logger.error(error);
     next(error);
   }
 });
@@ -94,6 +102,7 @@ app.get("/wallets/:wallet_id/balance", async (req, res) => {
       })
       .catch((error) => res.status(404).send(error));
   } catch (error) {
+    logger.error(error);
     res.status(500).send(error);
   }
 });
@@ -115,6 +124,7 @@ app.get("/contract/:contract_id/:function_name", async (req, res) => {
 
     res.send(result);
   } catch (error) {
+    logger.error(error);
     res.status(500).send(error);
   }
 });
@@ -150,6 +160,7 @@ app.post("/contract/:contract_id/call", async (req, res) => {
 
     res.send(result);
   } catch (error) {
+    logger.error(error);
     res.status(500).send(error);
   }
 });
@@ -170,6 +181,7 @@ app.get(
 
       res.send(result);
     } catch (error) {
+      logger.error(error);
       res.status(500).send(error);
     }
   }
@@ -191,6 +203,7 @@ app.get(
 
       res.send(result);
     } catch (error) {
+      logger.error(error);
       res.status(500).send(error);
     }
   }
@@ -224,7 +237,7 @@ app.get("/keypair", async (_, res) => {
       .set("Pragma", "no-cache")
       .send(result);
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     res.status(500).send(error);
   }
 });
@@ -305,7 +318,7 @@ app.post("/sign_url", async (req, res) => {
     if (meta) newUrl.searchParams.set("meta", meta);
     res.send(newUrl.href);
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return res.status(404).send(error);
   }
 });
@@ -320,11 +333,11 @@ if (config.enable_ssl) {
 
   // Start HTTPS server
   https.createServer(options, app).listen(port, () => {
-    console.log(`HTTPS server started on port: ${port}`);
+    logger.info(`HTTPS server started on port: ${port}`);
   });
 } else {
   // Start HTTP server
   app.listen(port, () => {
-    console.log(`HTTP server started on port: ${port}`);
+    logger.info(`HTTP server started on port: ${port}`);
   });
 }
