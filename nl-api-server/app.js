@@ -216,7 +216,7 @@ app.get("/keypair", async (_, res) => {
     const cipher = crypto.createCipheriv(
       config.encryption_algorithm,
       config.encryption_key,
-      config.initialization_vector
+      null //Initialisation Vector is useless here
     );
 
     const encrypted_private_key = Buffer.concat([
