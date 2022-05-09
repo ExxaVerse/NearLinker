@@ -8,10 +8,10 @@ module.exports = () => {
 
   // SSL setup
   const enable_ssl = process.env.ENABLE_SSL || false;
-  const ssl_key_path = process.env.SSL_KEY_PATH || "./test_ssl_cert/key.pem";
-  const ssl_cert_path = process.env.SSL_CERT_PATH || "./test_ssl_cert/cert.pem";
+  const ssl_key_path = process.env.SSL_KEY_PATH || "./ssl_certificate/key.pem";
+  const ssl_cert_path = process.env.SSL_CERT_PATH || "./ssl_certificate/cert.pem";
   const ssl_ca_cert_path =
-    process.env.SSL_CA_CERT_PATH || "./test_ssl_cert/ca_cert.pem";
+    process.env.SSL_CA_CERT_PATH || "./ssl_certificate/ca_cert.pem";
 
   // TODO: read from file/as env variable
   const encryption_key =

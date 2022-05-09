@@ -1,3 +1,17 @@
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+serial = ca-serial
+crl = ca_crl.pem
+private_key = ca_key.pem
+certificate = ca_cert.pem
+database = ca_database.txt
+name_opt = CA_default
+cert_opt = CA_default
+default_crl_days = 9999
+default_md = md5
+
 [ req ]
 encrypt_key = no
 utf8 = yes
@@ -15,3 +29,4 @@ commonName = ExxaVerse CA
 keyUsage = critical,keyCertSign,cRLSign
 basicConstraints = critical,CA:TRUE
 subjectKeyIdentifier = hash
+crlDistributionPoints = URI:file:///D:/devel/toptal/near_linker/NearLinker/nl-api-server/test_ssl_cert/ca_crl.pem

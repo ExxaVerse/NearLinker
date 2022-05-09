@@ -5,6 +5,7 @@
 #include"log.h"
 #include"Misc/MonitoredProcess.h"
 #include"Runtime/Online/HTTP/Public/Http.h"
+#include"Runtime/Online/SSL/Public/Ssl.h"
 #include"Misc/Base64.h"
 #include"JsonObjectConverter.h"
 
@@ -48,6 +49,24 @@ void UNearlinkerFunctionLibrary::StopIntegrationServer(){
 	UE_LOG(LogNearlinker, Log, TEXT("Integration server stopped"));
 }
 
+bool check_ssl(FString const& url){
+	//Ensure HTTPS is used
+	if(!url.StartsWith("https")){
+		UE_LOG(LogNearlinker, Error, TEXT("%s is unsecure, please use https"), *url);
+		return false;
+	}
+	//Optional: Ensure domain is pinned if it is localhost
+	//auto const domain=FPlatformHttp::GetUrlDomain(url);
+	//if(domain==TEXT("localhost")){
+		//if(!FSslModule::Get().GetCertificateManager().IsDomainPinned(domain)){
+			//UE_LOG(LogNearlinker, Error, TEXT("%s is unsecure, please pin the SSL public key by adding the following  to your DefaultEngine.ini file:\n[SSL]\n+PinnedPublicKeys=\"%s:<Semicolon separated base64 encoded SHA256 digests of pinned public keys>\""), *url, *domain);
+			//return false;
+		//}
+	//}
+	UE_LOG(LogNearlinker, Verbose, TEXT("%s is secure (domain: %s)"), *url, *domain);
+	return true;
+}
+
 void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, FNearHttpRequestCompleteDelegate const& response_handler, FString const& data){
 	return UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(method, resource, [response_handler](FString s,bool b){
 		if(!response_handler.ExecuteIfBound(s,b)){
@@ -56,23 +75,24 @@ void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& m
 	}, data);
 }
 void UNearlinkerFunctionLibrary::SendRequestToIntegrationServer(FString const& method, FString const& resource, std::function<void(FString,bool)> const& response_handler, FString const& data){
+	auto const& server_url=GetMutableDefault<UNearlinkerSettings>()->server_url;
 	//Log
-	UE_LOG(LogNearlinker, Log, TEXT("Integration server %s request on %s"), *method, *(GetMutableDefault<UNearlinkerSettings>()->server_url+resource));
+	UE_LOG(LogNearlinker, Log, TEXT("Integration server %s request on %s"), *method, *(server_url+resource));
 	if(data.Len()>0){
 		UE_LOG(LogNearlinker, Log, TEXT("with data %s"), *data);
 	}
-	//Ensure HTTPS is used
-	if(!GetMutableDefault<UNearlinkerSettings>()->server_url.StartsWith("https")){
-		UE_LOG(LogNearlinker, Error, TEXT("Integration server request is unsecure, please use https"));
+	//Check that the connection is secure
+	if(!check_ssl(server_url)){
+		UE_LOG(LogNearlinker, Error, TEXT("Integration server is unsecure"));
 #if !WITH_EDITOR
 		//http is useful for debugging, so we keep it in development builds
-		return;
+		return
 #endif
 	}
 	//Make request
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 	HttpRequest->SetVerb(method);
-	HttpRequest->SetURL(GetMutableDefault<UNearlinkerSettings>()->server_url+resource);
+	HttpRequest->SetURL(server_url+resource);
 	HttpRequest->SetHeader(TEXT("User-Agent"), TEXT("X-UnrealEngine-Agent"));
 	if(data.Len()>0){
 		if(method==TEXT("GET")){

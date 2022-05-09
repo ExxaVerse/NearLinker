@@ -39,6 +39,7 @@ public class Nearlinker : ModuleRules
 				"Slate",
 				"SlateCore",
                 "Http",
+                "SSL",
                 "Json",
                 "JsonUtilities"
 				// ... add private dependencies that you statically link with here ...	
