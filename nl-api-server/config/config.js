@@ -17,6 +17,7 @@ module.exports = () => {
   const encryption_key =
     process.env.AES_KEY || "JaNcRfUjXn2r5u8x/A?D(G+KbPeSgVkY";
   const encryption_algorithm = process.env.AES_ALGORITHM || "aes-256-cbc";
+  const initialization_vector = process.env.IV || crypto.randomBytes(16);
   let near_config;
 
   // NEAR setup
@@ -75,6 +76,7 @@ module.exports = () => {
     // AES setup
     encryption_algorithm: encryption_algorithm,
     encryption_key: encryption_key,
+    initialization_vector: initialization_vector,
     // SSL setup
     enable_ssl: enable_ssl,
     ssl_key_path: ssl_key_path,
