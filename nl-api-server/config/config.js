@@ -9,7 +9,8 @@ module.exports = () => {
   // SSL setup
   const enable_ssl = process.env.ENABLE_SSL || false;
   const ssl_key_path = process.env.SSL_KEY_PATH || "./ssl_certificate/key.pem";
-  const ssl_cert_path = process.env.SSL_CERT_PATH || "./ssl_certificate/cert.pem";
+  const ssl_cert_path =
+    process.env.SSL_CERT_PATH || "./ssl_certificate/cert.pem";
   const ssl_ca_cert_path =
     process.env.SSL_CA_CERT_PATH || "./ssl_certificate/ca_cert.pem";
 
@@ -17,7 +18,8 @@ module.exports = () => {
   const encryption_key =
     process.env.AES_KEY || "JaNcRfUjXn2r5u8x/A?D(G+KbPeSgVkY";
   const encryption_algorithm = process.env.AES_ALGORITHM || "aes-256-cbc";
-  const initialization_vector = process.env.IV || crypto.randomBytes(16);
+  const initialization_vector = process.env.IV || Buffer.from("PneF|!*aI!U");
+
   let near_config;
 
   // NEAR setup
