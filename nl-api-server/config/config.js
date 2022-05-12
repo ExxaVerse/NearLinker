@@ -7,7 +7,7 @@ module.exports = () => {
   const port = process.env.PORT || "3000";
 
   // SSL setup
-  const enable_ssl = process.env.ENABLE_SSL || false;
+  const enable_ssl = process.env.ENABLE_SSL || true;
   const ssl_key_path = process.env.SSL_KEY_PATH || "./ssl_certificate/key.pem";
   const ssl_cert_path =
     process.env.SSL_CERT_PATH || "./ssl_certificate/cert.pem";
