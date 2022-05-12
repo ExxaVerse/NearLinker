@@ -16,7 +16,11 @@ void UNearlinkerFunctionLibrary::StartIntegrationServer(){
 	if(IntegrationServerProcess && IntegrationServerProcess->Update()){
 		UE_LOG(LogNearlinker, Log, TEXT("Integration server is already running"));
 	}else{
-		IntegrationServerProcess=MakeUnique<FMonitoredProcess>(server_conf.executable_path, server_conf.args, server_conf.start_hidden);
+		if(server_conf.working_directory.Len()==0){
+			IntegrationServerProcess=MakeUnique<FMonitoredProcess>(server_conf.executable_path, server_conf.args, server_conf.start_hidden);
+		}else{
+			IntegrationServerProcess=MakeUnique<FMonitoredProcess>(server_conf.executable_path, server_conf.args, server_conf.working_directory, server_conf.start_hidden);
+		}
 		if(!IntegrationServerProcess){
 			UE_LOG(LogNearlinker, Error, TEXT("Failed to allocate memory for the integration server FMonitoredProcess"));
 			return;

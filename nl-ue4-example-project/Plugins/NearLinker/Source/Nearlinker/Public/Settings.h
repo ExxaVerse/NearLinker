@@ -16,6 +16,8 @@ struct FProcessSettings{
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString args;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString working_directory;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool start_hidden=true;
 	//Process priority.
 	//-2 idle, -1 low, 0 normal, 1 high, 2 higher
@@ -33,7 +35,7 @@ public:
 	UPROPERTY(config, EditAnywhere, Category = "Integration Server")
 	bool auto_launch_local_server=true;
 	UPROPERTY(config, EditAnywhere, Category = "Integration Server")
-	FString server_url="https://localhost:12678";
+	FString server_url="https://localhost:3000";
 	UPROPERTY(config, EditAnywhere, Category = "Contracts")
 	TArray<FString> contracts_directories;
 	//UPROPERTY(config, EditAnywhere, Category = "Contracts")
