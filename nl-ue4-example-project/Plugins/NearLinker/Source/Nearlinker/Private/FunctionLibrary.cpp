@@ -56,7 +56,7 @@ bool check_ssl(FString const& url){
 		return false;
 	}
 	//Optional: Ensure domain is pinned if it is localhost
-	//auto const domain=FPlatformHttp::GetUrlDomain(url);
+	auto const domain=FPlatformHttp::GetUrlDomain(url);
 	//if(domain==TEXT("localhost")){
 		//if(!FSslModule::Get().GetCertificateManager().IsDomainPinned(domain)){
 			//UE_LOG(LogNearlinker, Error, TEXT("%s is unsecure, please pin the SSL public key by adding the following  to your DefaultEngine.ini file:\n[SSL]\n+PinnedPublicKeys=\"%s:<Semicolon separated base64 encoded SHA256 digests of pinned public keys>\""), *url, *domain);
