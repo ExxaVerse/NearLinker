@@ -1,7 +1,10 @@
-nl-ue4-example-project/Binaries
-nl-ue4-example-project/Intermediate
-nl-ue4-example-project/Saved
+nl-ue4-example-project/Binaries/
+nl-ue4-example-project/Intermediate/
+nl-ue4-example-project/Saved/
 nl-ue4-example-project/Plugins/NearLinker/Binaries/
-nl-ue4-example-project/Plugins/NearLinker/Intermediate
-nl-ue4-example-project/Plugins/NearLinker/Saved
-nl-api-server/node_modules/*
+nl-ue4-example-project/Plugins/NearLinker/Intermediate/
+nl-ue4-example-project/Plugins/NearLinker/Saved/
+nl-ue4-example-project/Config/SteamVRBindings/
+nl-ue4-example-project/Config/steamvr_ue_editor_app.json
+nl-api-server/node_modules/
+nl-api-server/logs/
