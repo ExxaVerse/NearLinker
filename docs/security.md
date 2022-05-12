@@ -28,7 +28,17 @@ Now the sensitive data is the integration server private key. How and where is i
 
 In case the integration server runs on a server somewhere, it would have its own SSL certificate as a normal server.
 
-In case the integration server runs on the same computer as the game, the game installer would generate the SSL certificate and its private key, install the game in user space including the client SSL certificate, install the integration server in admin space including the server SSL certificate. 
+In case the integration server runs on the same computer as the game, the game installer would:
+
+- generate the SSL certificate chain (CA and server certificate) and the server private key
+- install the game including the generated CA. Those files should be read-only and executable from the user. 
+- install the integration server including the certificate chain and the private key. The user should not be able to read the private key, but the server should. The user should not be able to write any of those files. In other words, the server should be isolated from the user, just like if it was run on another computer, except that the user may start it.
 
 Pen tester should check that the game client accepts the integration server certificate only if it is valid. See `badssl.com` for failure cases to check.
+
+# Wallet management
+
+Creating a wallet requires some money, so it cannot be done by the plugin alone. A wallet can be created by the user with his own tools (no need to trust a third party), or by the game seller when he sells the game (more convenient).
+
+Then the plugin needs to get an access key to the wallet. It can generate a key pair and ask the user to register the new public key. Or this can be done when the user buys the game if the buying process creates a new wallet for him. In both cases, the newly generated private key should be encrypted as soon as possible with a password that only the user knows.
 
