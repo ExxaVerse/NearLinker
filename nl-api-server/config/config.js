@@ -18,8 +18,8 @@ module.exports = () => {
   const encryption_key =
     process.env.AES_KEY || "JaNcRfUjXn2r5u8x/A?D(G+KbPeSgVkY";
   const encryption_algorithm = process.env.AES_ALGORITHM || "aes-256-cbc";
-  const initialization_vector = process.env.IV || Buffer.from("PneF|!*aI!U");
-
+  const initialization_vector =
+    process.env.IV || Buffer.from("acJ6eRBjYWeyeAiF/HfO6A==", "base64");
   let near_config;
 
   // NEAR setup
