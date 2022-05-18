@@ -1,0 +1,3 @@
+[submodule "nl-ue4-example-project/Plugins/NearLinker"]
+	path = nl-ue4-example-project/Plugins/NearLinker
+	url = git@github.com:ExxaVerse/NearLinker_UE_plugin.git
