@@ -129,6 +129,28 @@ app.get("/contract/:contract_id/:function_name", async (req, res) => {
   }
 });
 
+// VIEW - Call View contract function - POST version
+app.post("/contract/:contract_id/:function_name", async (req, res) => {
+  const near = req.near;
+  try {
+    const contract_id = req.params.contract_id;
+    const function_name = req.params.function_name;
+    const contract_account = await near.account(contract_id);
+
+    const result = await contract_account
+      .viewFunction(contract_id, function_name, req.body)
+      .catch((error) => {
+        console.log(error);
+        res.status(500).send("Invalid function call or parameters.");
+      });
+
+    res.send(result);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).send(error);
+  }
+});
+
 // CALL - Call contract function
 app.post("/contract/:contract_id/call", async (req, res) => {
   const near = req.near;
