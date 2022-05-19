@@ -130,15 +130,16 @@ app.get("/contract/:contract_id/:function_name", async (req, res) => {
 });
 
 // VIEW - Call View contract function - POST version
-app.post("/contract/:contract_id/:function_name", async (req, res) => {
+app.post("/contract/:contract_id/view", async (req, res) => {
   const near = req.near;
   try {
     const contract_id = req.params.contract_id;
-    const function_name = req.params.function_name;
+    const function_name = req.body.function.name;
+    const params = {...req.body.function.parameters_string, ...req.body.function.parameters_int};
     const contract_account = await near.account(contract_id);
 
     const result = await contract_account
-      .viewFunction(contract_id, function_name, req.body)
+      .viewFunction(contract_id, function_name, params)
       .catch((error) => {
         console.log(error);
         res.status(500).send("Invalid function call or parameters.");
@@ -159,7 +160,7 @@ app.post("/contract/:contract_id/call", async (req, res) => {
     const account_id = req.body.account_id;
     const contract_id = req.params.contract_id;
     const function_name = req.body.function.name;
-    const params = req.body.function.parameters || {};
+    const params = {...req.body.function.parameters_string, ...req.body.function.parameters_int};
     const gas = req.body.gas || "300000000000000";
     const attached_deposit =
       (req.body.deposit && utils.format.parseNearAmount(req.body.deposit)) ||
