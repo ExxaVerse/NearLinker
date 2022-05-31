@@ -40,8 +40,19 @@ More features will be disclosed closer to the full-launch.
 Architecture breakdown:
 
 - `NEAR blockchain` - the main data storage
-- `NodeJS Integration Server` - communicates with the NEAR blockchain through specific libraries
 - `RUST Smart Contracts` - smart contracts are written in Rust and deployed directly on the blockchain
-- `UE Clients` - games developed in Unreal Engine that use the NearLinker plugin to connect to the blockchain
+- `NodeJS Integration Server` - communicates with the NEAR blockchain through specific libraries
+- `UE NearLinker plugin` - provides Blueprints to communicate with the Integration Server
+- `UE Games` - games developed in Unreal Engine that use the NearLinker plugin to connect to the blockchain
+
+# Demo project
+
+A demo project is located in `nl-ue4-example-project/`. To use it, you need to 
+1. Clone the [NearLinker_UE_plugin](https://github.com/ExxaVerse/NearLinker_UE_plugin) by running `git submodule update --init`.
+2. Follow the instructions in `nl-ue4-example-project/Plugins/NearLinker/README.md`.
+
+The project is blank with only one simple actor in it which only spawns the BP_NearMenu from the plugin. This menu is a simple UI, showcasing all functionalities. This BP_NearMenu is a good place to see how to use the plugin in Blueprints.
+
+In each project where you want to use the plugin, you need to clone it in the `<Project>/Plugins/` directory, and follow the instructions in `nl-ue4-example-project/Plugins/NearLinker/README.md`.
 
 # FAQ & Contact
